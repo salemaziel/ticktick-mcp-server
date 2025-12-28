@@ -26,7 +26,7 @@ export const TickTickTaskSchema = z.object({
   reminders: z.array(z.string()).optional(),
   priority: z.number().optional(),
   status: z.number(),
-  completedTime: z.string().optional(),
+  completedTime: z.union([z.string(), z.number()]).optional(),
   sortOrder: z.number().optional(),
   items: z
     .array(
@@ -38,7 +38,7 @@ export const TickTickTaskSchema = z.object({
         startDate: z.string().optional(),
         isAllDay: z.boolean().optional(),
         timeZone: z.string().optional(),
-        completedTime: z.string().optional(),
+        completedTime: z.union([z.string(), z.number()]).optional(),
       })
     )
     .optional(),
@@ -61,7 +61,7 @@ export const TickTickCheckListItemSchema = z.object({
     .optional()
     .describe('The completion status of subtask. Normal: 0, Completed: 1'),
   completedTime: z
-    .string()
+    .union([z.string(), z.number()])
     .optional()
     .describe(`Subtask item completed time in "yyyy-MM-dd'T'HH:mm:ssZ" format`),
 });
