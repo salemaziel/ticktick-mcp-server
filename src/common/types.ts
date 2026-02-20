@@ -28,6 +28,7 @@ export const TickTickTaskSchema = z.object({
   status: z.number(),
   completedTime: z.union([z.string(), z.number()]).optional(),
   sortOrder: z.number().optional(),
+  parentId: z.string().optional(),
   items: z
     .array(
       z.object({
@@ -65,3 +66,25 @@ export const TickTickCheckListItemSchema = z.object({
     .optional()
     .describe(`Subtask item completed time in "yyyy-MM-dd'T'HH:mm:ssZ" format`),
 });
+
+export const TickTickUserSchema = z
+  .object({
+    id: z.string(),
+    username: z.string(),
+  })
+  .passthrough();
+
+export const TickTickTaskDeleteSchema = z.object({
+  taskId: z.string().describe('Task identifier'),
+  projectId: z.string().describe('Project identifier'),
+});
+
+export const TickTickCompletedTaskSchema = TickTickTaskSchema
+  .partial()
+  .extend({
+    id: z.string(),
+    projectId: z.string(),
+    title: z.string(),
+    status: z.number(),
+  })
+  .passthrough();
