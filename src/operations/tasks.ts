@@ -8,7 +8,7 @@ import {
   TickTickTaskSchema,
   TickTickUserSchema,
 } from '../common/types.js';
-import { getProjectWithData } from './projects.js';
+import { getProjectWithData, GetProjectWithDataResponseSchema } from './projects.js';
 
 export const GetTaskByIdsOptionsSchema = z.object({
   projectId: z.string().describe('Project identifier'),
@@ -195,7 +195,7 @@ export const GetCompletedTasksOptionsSchema = z.object({
   from: z
     .string()
     .describe(
-      'Start datetime string, e.g. "2026-02-19T00:00:00.000+0000"'
+      'Start datetime string in the format "YYYY-MM-DDTHH:mm:ss.sss+0000"'
     ),
   to: z
     .string()
@@ -254,9 +254,9 @@ export const BatchUpdateTasksOptionsSchema = z
   })
   .refine(
     (data) =>
-      (data.add && data.add.length > 0) ||
-      (data.update && data.update.length > 0) ||
-      (data.delete && data.delete.length > 0),
+      (data.add?.length ?? 0) > 0 ||
+      (data.update?.length ?? 0) > 0 ||
+      (data.delete?.length ?? 0) > 0,
     { message: 'At least one of add, update, or delete must be provided' }
   );
 
@@ -294,17 +294,10 @@ export async function getSubtasks(
 ): Promise<z.infer<typeof TickTickTaskSchema>[]> {
   const { parentId, projectId } = params;
 
-  const url = `${TICKTICK_API_URL}/project/${projectId}/data`;
-  const response = await ticktickRequest(url);
+  // Note: fetches all project tasks and filters locally; may be slow for large projects
+  const data = await getProjectWithData(projectId);
 
-  const projectData = z
-    .object({
-      tasks: z.array(TickTickTaskSchema),
-    })
-    .passthrough()
-    .parse(response);
-
-  return projectData.tasks.filter((task) => task.parentId === parentId);
+  return data.tasks.filter((task) => task.parentId === parentId);
 }
 
 // --- get_current_user ---
@@ -328,13 +321,13 @@ export const GetInboxTasksOptionsSchema = z.object({
 
 type GetInboxTasksParams = z.infer<typeof GetInboxTasksOptionsSchema>;
 
-export async function getInboxTasks(params: GetInboxTasksParams) {
-  const user = await getCurrentUser();
-  const inboxProjectId = `inbox${user.id}`;
-  const data = await getProjectWithData(inboxProjectId);
+export async function getInboxTasks(
+  params: GetInboxTasksParams
+): Promise<z.infer<typeof GetProjectWithDataResponseSchema>> {
+  const data = await getProjectWithData('inbox');
 
   if (!params.includeCompleted) {
-    data.tasks = data.tasks.filter((task) => task.status !== 2);
+    return { ...data, tasks: data.tasks.filter((task) => task.status !== 2) };
   }
 
   return data;
