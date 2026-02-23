@@ -21,13 +21,14 @@ export const TickTickTaskSchema = z.object({
   desc: z.string().optional(),
   timeZone: z.string().optional(),
   repeatFlag: z.string().optional(),
-  startDate: z.string().optional(),
-  dueDate: z.string().optional(),
+  startDate: z.union([z.string(), z.number()]).optional(),
+  dueDate: z.union([z.string(), z.number()]).optional(),
   reminders: z.array(z.string()).optional(),
   priority: z.number().optional(),
   status: z.number(),
-  completedTime: z.string().optional(),
+  completedTime: z.union([z.string(), z.number()]).optional(),
   sortOrder: z.number().optional(),
+  parentId: z.string().optional(),
   items: z
     .array(
       z.object({
@@ -35,10 +36,10 @@ export const TickTickTaskSchema = z.object({
         status: z.number(),
         title: z.string(),
         sortOrder: z.number().optional(),
-        startDate: z.string().optional(),
+        startDate: z.union([z.string(), z.number()]).optional(),
         isAllDay: z.boolean().optional(),
         timeZone: z.string().optional(),
-        completedTime: z.string().optional(),
+        completedTime: z.union([z.string(), z.number()]).optional(),
       })
     )
     .optional(),
@@ -47,9 +48,9 @@ export const TickTickTaskSchema = z.object({
 export const TickTickCheckListItemSchema = z.object({
   title: z.string().describe('Subtask item title'),
   startDate: z
-    .string()
+    .union([z.string(), z.number()])
     .optional()
-    .describe(`Subtask item start date in "yyyy-MM-dd'T'HH:mm:ssZ" format`),
+    .describe(`Subtask item start date in "yyyy-MM-dd'T'HH:mm:ssZ" format or Unix timestamp`),
   isAllDay: z.boolean().optional().describe('Is all day subtask item'),
   sortOrder: z.number().optional().describe('Subtask item sort order'),
   timeZone: z
@@ -61,7 +62,29 @@ export const TickTickCheckListItemSchema = z.object({
     .optional()
     .describe('The completion status of subtask. Normal: 0, Completed: 1'),
   completedTime: z
-    .string()
+    .union([z.string(), z.number()])
     .optional()
     .describe(`Subtask item completed time in "yyyy-MM-dd'T'HH:mm:ssZ" format`),
 });
+
+export const TickTickUserSchema = z
+  .object({
+    id: z.string(),
+    username: z.string(),
+  })
+  .passthrough();
+
+export const TickTickTaskDeleteSchema = z.object({
+  taskId: z.string().describe('Task identifier'),
+  projectId: z.string().describe('Project identifier'),
+});
+
+export const TickTickCompletedTaskSchema = TickTickTaskSchema
+  .partial()
+  .extend({
+    id: z.string(),
+    projectId: z.string(),
+    title: z.string(),
+    status: z.number(),
+  })
+  .passthrough();

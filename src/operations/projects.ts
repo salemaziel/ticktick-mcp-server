@@ -6,7 +6,7 @@ import { TickTickProjectSchema, TickTickTaskSchema } from '../common/types.js';
 export const GetUserProjectsResponseSchema = z.array(TickTickProjectSchema);
 
 export const GetProjectWithDataResponseSchema = z.object({
-  project: TickTickProjectSchema,
+  project: TickTickProjectSchema.optional(),
   tasks: z.array(TickTickTaskSchema),
   columns: z
     .array(
