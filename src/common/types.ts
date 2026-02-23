@@ -64,7 +64,7 @@ export const TickTickCheckListItemSchema = z.object({
   completedTime: z
     .union([z.string(), z.number()])
     .optional()
-    .describe(`Subtask item completed time in "yyyy-MM-dd'T'HH:mm:ssZ" format`),
+    .describe(`Subtask item completed time in "yyyy-MM-dd'T'HH:mm:ssZ" format or Unix timestamp`),
 });
 
 export const TickTickUserSchema = z

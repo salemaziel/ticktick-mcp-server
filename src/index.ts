@@ -103,9 +103,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'batch_update_tasks',
         description:
           'Batch create, update, and/or delete multiple tasks in a single request',
-        inputSchema: zodToJsonSchema(
-          tasks.BatchUpdateTasksOptionsSchema.innerType()
-        ),
+        inputSchema: zodToJsonSchema(tasks.BatchUpdateTasksOptionsSchema),
       },
       {
         name: 'get_subtasks',
@@ -130,7 +128,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
-    const toolsWithoutArguments = ['get_user_projects', 'get_current_user'];
+    const toolsWithoutArguments = ['get_user_projects', 'get_current_user', 'get_inbox_tasks'];
 
     if (
       !request.params.arguments &&
